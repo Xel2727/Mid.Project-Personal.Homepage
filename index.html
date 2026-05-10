@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beranda — Excel Rechy Katuuk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Special+Elite&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --wood-dark:    #3b1f0c;
+      --wood-mid:     #6b3a1f;
+      --wood-light:   #a0622a;
+      --cream:        #f5edd6;
+      --paper:        #efe3c2;
+      --aged:         #d4b896;
+      --sepia:        #8b6340;
+      --sepia-dark:   #5c3d1e;
+      --ink:          #2c1a0e;
+      --ink-faded:    #6b4c30;
+      --envelope-bg:  #c8a96a;
+      --envelope-dark:#9b7a40;
+      --wax-red:      #8b1a1a;
+      --tape:         rgba(210,195,155,0.65);
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Libre Baskerville', Georgia, serif;
+      background-color: var(--wood-dark);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ========= WOOD BACKGROUND ========= */
+    .wood-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background:
+        repeating-linear-gradient(
+          92deg,
+          transparent 0px,
+          transparent 3px,
+          rgba(0,0,0,0.04) 3px,
+          rgba(0,0,0,0.04) 4px
+        ),
+        repeating-linear-gradient(
+          88deg,
+          transparent 0px,
+          transparent 12px,
+          rgba(255,200,100,0.025) 12px,
+          rgba(255,200,100,0.025) 13px
+        ),
+        repeating-linear-gradient(
+          180deg,
+          rgba(90,40,10,0.0) 0px,
+          rgba(120,60,20,0.12) 18px,
+          rgba(80,35,8,0.0) 36px,
+          rgba(130,65,18,0.08) 54px,
+          rgba(70,30,8,0.0) 72px
+        ),
+        linear-gradient(175deg, #6b3a1f 0%, #4a2510 25%, #7a4520 50%, #3b1f0c 75%, #5c3010 100%);
+      background-blend-mode: multiply, screen, overlay, normal;
+    }
+
+    /* Wood grain SVG knots */
+    .wood-bg::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(ellipse 120px 30px at 15% 20%, rgba(30,10,2,0.25) 0%, transparent 70%),
+        radial-gradient(ellipse 80px 20px at 75% 60%, rgba(30,10,2,0.2) 0%, transparent 70%),
+        radial-gradient(ellipse 100px 25px at 40% 80%, rgba(30,10,2,0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 60px 15px at 88% 15%, rgba(30,10,2,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Grain noise overlay */
+    .wood-bg::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ========= NAV ========= */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 28px;
+      background: rgba(30,10,4,0.85);
+      backdrop-filter: blur(8px);
+      border-bottom: 2px solid rgba(160,98,42,0.5);
+      box-shadow: 0 2px 20px rgba(0,0,0,0.5);
+    }
+
+    .hamburger {
+      background: transparent;
+      border: 1.5px solid rgba(160,98,42,0.6);
+      color: var(--aged);
+      font-size: 18px;
+      width: 40px;
+      height: 40px;
+      border-radius: 3px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .hamburger:hover { background: rgba(160,98,42,0.3); }
+
+    .nav-brand {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.3rem;
+      color: var(--aged);
+      letter-spacing: 0.05em;
+    }
+
+    .drawer {
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0;
+      height: 100vh;
+      width: 260px;
+      background: rgba(25,10,3,0.97);
+      border-right: 2px solid rgba(160,98,42,0.4);
+      padding-top: 70px;
+      transform: translateX(-100%);
+      transition: transform 0.28s cubic-bezier(.4,0,.2,1);
+      z-index: 998;
+    }
+
+    .drawer::before {
+      content: '✦  Menu  ✦';
+      position: absolute;
+      top: 26px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Special Elite', serif;
+      color: var(--sepia);
+      font-size: 0.8rem;
+      letter-spacing: 0.2em;
+      white-space: nowrap;
+    }
+
+    .drawer a {
+      padding: 13px 24px;
+      color: var(--aged);
+      text-decoration: none;
+      font-family: 'Special Elite', serif;
+      font-size: 0.95rem;
+      letter-spacing: 0.12em;
+      border-bottom: 1px solid rgba(160,98,42,0.12);
+      transition: color 0.2s, padding-left 0.2s;
+      position: relative;
+    }
+
+    .drawer a::before {
+      content: '›';
+      position: absolute;
+      left: 12px;
+      opacity: 0;
+      transition: opacity 0.2s;
+      color: var(--sepia);
+    }
+
+    .drawer a:hover, .drawer a.active {
+      color: var(--cream);
+      padding-left: 34px;
+    }
+    .drawer a:hover::before, .drawer a.active::before { opacity: 1; }
+
+    .drawer.open {
+      transform: translateX(0);
+      box-shadow: 6px 0 30px rgba(0,0,0,0.6);
+    }
+
+    /* ========= SCENE / TABLE ========= */
+    .scene {
+      position: relative;
+      z-index: 10;
+      min-height: calc(100vh - 70px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px 80px;
+    }
+
+    /* ========= ENVELOPE ========= */
+    .envelope-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 950px;
+      cursor: pointer;
+      perspective: 1200px;
+    }
+
+    /* Shadow on wood */
+    .envelope-shadow {
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 30px;
+      background: radial-gradient(ellipse, rgba(0,0,0,0.5) 0%, transparent 70%);
+      filter: blur(8px);
+      transition: all 0.6s ease;
+    }
+
+    .envelope-wrapper.opened .envelope-shadow {
+      width: 50%;
+      opacity: 0.3;
+    }
+
+    /* Envelope body */
+    .envelope {
+      position: relative;
+      width: 100%;
+      background: linear-gradient(160deg, #d4aa6a 0%, #c09040 60%, #a87830 100%);
+      border-radius: 4px 4px 6px 6px;
+      box-shadow:
+        0 8px 32px rgba(0,0,0,0.45),
+        0 2px 8px rgba(0,0,0,0.3),
+        inset 0 1px 0 rgba(255,220,140,0.3);
+      padding-bottom: 62%; /* aspect ratio */
+      transition: transform 0.3s ease;
+    }
+
+    .envelope-wrapper:hover:not(.opened) .envelope {
+      transform: translateY(-4px) rotate(0.3deg);
+    }
+
+    /* Envelope side folds (V-shape bottom) */
+    .envelope-bottom {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 55%;
+      overflow: hidden;
+    }
+
+    .fold-left, .fold-right {
+      position: absolute;
+      bottom: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .fold-left {
+      left: 0;
+      border-bottom: 220px solid #b8883a;
+      border-right: 360px solid transparent;
+      filter: drop-shadow(2px -2px 4px rgba(0,0,0,0.15));
+    }
+
+    .fold-right {
+      right: 0;
+      border-bottom: 220px solid #a87830;
+      border-left: 360px solid transparent;
+    }
+
+    /* Top flap */
+    .flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 50%;
+      transform-origin: top center;
+      transform-style: preserve-3d;
+      transition: transform 0.7s cubic-bezier(.4,0,.2,1);
+      z-index: 20;
+    }
+
+    .flap-face {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    /* Triangle flap shape */
+    .flap-face::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 100%;
+      background: linear-gradient(175deg, #e0bc78 0%, #c8a050 100%);
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+
+    /* Back of flap */
+    .flap-back {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      transform: rotateX(180deg);
+    }
+
+    .flap-back::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 100%;
+      background: linear-gradient(175deg, #c8a050 0%, #b08030 100%);
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+    }
+
+    .envelope-wrapper.opened .flap {
+      transform: rotateX(-180deg);
+    }
+
+    /* Wax seal */
+    .wax-seal {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -20%);
+      z-index: 25;
+      width: 95px;
+      height: 95px;
+      background: radial-gradient(circle at 35% 35%, #c0302a, #6b1010);
+      border-radius: 50%;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,100,80,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 900;
+      color: rgba(255,220,200,0.85);
+      font-style: italic;
+      transition: opacity 0.4s, transform 0.4s;
+      cursor: pointer;
+      border: 2px solid rgba(139,30,20,0.6);
+      user-select: none;
+    }
+
+    .wax-seal::after {
+      content: '';
+      position: absolute;
+      inset: 4px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,150,120,0.2);
+    }
+
+    .envelope-wrapper.opened .wax-seal {
+      opacity: 0;
+      transform: translate(-50%, -20%) scale(0.5);
+      pointer-events: none;
+    }
+
+    /* Hint text */
+    .envelope-hint {
+      text-align: center;
+      margin-top: 44px;
+      font-family: 'Special Elite', serif;
+      color: rgba(180,140,80,0.85);
+      font-size: 1.02rem;
+      letter-spacing: 0.25em;
+      animation: pulse 2.5s ease-in-out infinite;
+      transition: opacity 0.4s;
+    }
+
+    .envelope-wrapper.opened .envelope-hint {
+      opacity: 0;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    /* ========= LETTER ========= */
+    .letter-container {
+      width: 100%;
+      max-width: 950px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 1s cubic-bezier(.4,0,.2,1), margin-top 0.6s ease;
+      margin-top: 0;
+    }
+
+    .letter-container.visible {
+      max-height: 3000px;
+      margin-top: -20px;
+    }
+
+    .letter {
+      background: var(--paper);
+      background-image:
+        repeating-linear-gradient(
+          transparent 0px,
+          transparent 27px,
+          rgba(139,99,64,0.08) 27px,
+          rgba(139,99,64,0.08) 28px
+        ),
+        radial-gradient(ellipse at 20% 5%, rgba(255,220,150,0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 90%, rgba(180,130,70,0.1) 0%, transparent 50%);
+      border: 1px solid var(--aged);
+      box-shadow:
+        0 10px 40px rgba(0,0,0,0.4),
+        0 2px 8px rgba(0,0,0,0.2),
+        inset 0 0 80px rgba(180,140,70,0.05);
+      padding: 64px 60px 68px;
+      position: relative;
+      animation: letterSlide 0.8s ease 0.3s both;
+      transform-origin: top center;
+    }
+
+    @keyframes letterSlide {
+      from { opacity: 0; transform: translateY(-30px) scaleY(0.95); }
+      to   { opacity: 1; transform: translateY(0) scaleY(1); }
+    }
+
+    /* Corner decorations */
+    .letter::before {
+      content: '';
+      position: absolute;
+      top: -1px; left: -1px;
+      width: 22px; height: 22px;
+      border-top: 2.5px solid var(--sepia);
+      border-left: 2.5px solid var(--sepia);
+    }
+    .letter::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; right: -1px;
+      width: 22px; height: 22px;
+      border-bottom: 2.5px solid var(--sepia);
+      border-right: 2.5px solid var(--sepia);
+    }
+
+    /* Letter header */
+    .letter-date {
+      text-align: right;
+      font-family: 'Special Elite', serif;
+      font-size: 0.92rem;
+      color: var(--sepia);
+      letter-spacing: 0.15em;
+      margin-bottom: 32px;
+    }
+
+    .letter-greeting {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.9rem;
+      color: var(--sepia-dark);
+      margin-bottom: 26px;
+    }
+
+    /* Divider ornament */
+    .ornament {
+      text-align: center;
+      color: var(--sepia);
+      font-size: 0.88rem;
+      letter-spacing: 0.5em;
+      margin: 32px 0;
+      opacity: 0.7;
+    }
+
+    /* Profile section */
+    .letter-intro {
+      display: flex;
+      gap: 36px;
+      align-items: flex-start;
+      margin-bottom: 40px;
+    }
+
+    .letter-photo {
+      flex-shrink: 0;
+    }
+
+    .letter-photo img {
+      width: 150px;
+      height: 150px;
+      object-fit: cover;
+      border: 6px solid var(--cream);
+      box-shadow: 3px 4px 12px rgba(92,61,30,0.35), 0 0 0 1px var(--aged);
+      filter: sepia(25%) contrast(1.05);
+      display: block;
+    }
+
+    .letter-body p {
+      font-size: 1.05rem;
+      color: var(--ink-faded);
+      line-height: 1.9;
+      margin-bottom: 14px;
+    }
+
+    .letter-body p strong {
+      color: var(--sepia-dark);
+      font-family: 'Special Elite', serif;
+    }
+
+    /* Signature */
+    .letter-signature {
+      text-align: right;
+      margin-top: 36px;
+      padding-top: 22px;
+      border-top: 1px dashed rgba(139,99,64,0.3);
+    }
+
+    .letter-signature .sign-label {
+      font-family: 'Special Elite', serif;
+      font-size: 0.85rem;
+      color: var(--sepia);
+      letter-spacing: 0.15em;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .letter-signature .sign-name {
+      font-family: 'Dancing Script', cursive;
+      font-size: 2.5rem;
+      color: var(--sepia-dark);
+      line-height: 1;
+    }
+
+    /* ========= POLAROID SECTION IN LETTER ========= */
+    .polaroid-section-title {
+      font-family: 'Special Elite', serif;
+      font-size: 0.95rem;
+      color: var(--sepia);
+      letter-spacing: 0.2em;
+      text-align: center;
+      margin: 42px 0 12px;
+    }
+
+    .polaroid-note {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.2rem;
+      color: var(--ink-faded);
+      text-align: center;
+      margin-bottom: 36px;
+      font-style: italic;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px 18px;
+      padding: 16px 0;
+    }
+
+    figure.polaroid {
+      background: #f7f2e6;
+      border: 1px solid rgba(139,99,64,0.15);
+      padding: 10px 10px 44px;
+      box-shadow:
+        0 4px 10px rgba(92,61,30,0.22),
+        0 10px 24px rgba(92,61,30,0.1),
+        inset 0 0 0 1px rgba(255,255,255,0.5);
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.35s cubic-bezier(.2,.8,.3,1.2), box-shadow 0.3s;
+    }
+
+    figure.polaroid:nth-child(odd)  { transform: rotate(-2.5deg); }
+    figure.polaroid:nth-child(even) { transform: rotate(2deg); }
+    figure.polaroid:nth-child(3n)   { transform: rotate(-1deg); }
+
+    figure.polaroid:hover {
+      transform: translateY(-12px) rotate(0deg) scale(1.06) !important;
+      box-shadow:
+        0 20px 50px rgba(92,61,30,0.35),
+        0 0 0 2px var(--sepia),
+        inset 0 0 0 1px rgba(255,255,255,0.7);
+      z-index: 10;
+    }
+
+    /* Tape */
+    figure.polaroid::before {
+      content: '';
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%) rotate(-1.5deg);
+      width: 56px;
+      height: 20px;
+      background: var(--tape);
+      border: 1px solid rgba(180,160,100,0.25);
+    }
+
+    figure.polaroid img {
+      width: 100%;
+      height: 155px;
+      object-fit: cover;
+      display: block;
+      filter: sepia(20%) contrast(1.05) brightness(0.97);
+      transition: filter 0.4s;
+    }
+
+    figure.polaroid:hover img {
+      filter: sepia(0%) contrast(1.05) brightness(1);
+    }
+
+    figcaption {
+      position: absolute;
+      bottom: 8px;
+      left: 0; right: 0;
+      text-align: center;
+      font-family: 'Special Elite', serif;
+      font-size: 0.8rem;
+      color: var(--ink-faded);
+      letter-spacing: 0.04em;
+      padding: 0 8px;
+    }
+
+    /* ========= FOOTER ========= */
+    .scene-footer {
+      font-family: 'Special Elite', serif;
+      font-size: 0.72rem;
+      color: rgba(160,98,42,0.5);
+      letter-spacing: 0.2em;
+      text-align: center;
+      margin-top: 40px;
+      z-index: 10;
+      position: relative;
+    }
+
+    /* ========= LIGHTBOX ========= */
+    .lightbox {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      inset: 0;
+      background: rgba(20,8,2,0.95);
+      backdrop-filter: blur(6px);
+    }
+
+    .lightbox.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .lightbox img {
+      max-width: min(86vw, 600px);
+      max-height: 80vh;
+      object-fit: contain;
+      border: 10px solid #f7f2e6;
+      border-bottom-width: 52px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+      filter: sepia(10%) contrast(1.04);
+    }
+
+    .close-btn {
+      position: fixed;
+      top: 20px; right: 24px;
+      background: var(--sepia-dark);
+      border: 1.5px solid var(--sepia);
+      color: var(--cream);
+      font-size: 1.3rem;
+      width: 40px; height: 40px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+      font-family: 'Special Elite', serif;
+    }
+
+    .close-btn:hover { background: var(--sepia); }
+
+    /* ========= ANIMATIONS ========= */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* Entrance */
+    .envelope-wrapper {
+      animation: dropIn 0.9s cubic-bezier(.2,.8,.3,1) 0.2s both;
+    }
+
+    @keyframes dropIn {
+      from { opacity: 0; transform: translateY(-40px) rotate(-2deg); }
+      to   { opacity: 1; transform: translateY(0) rotate(0deg); }
+    }
+
+    /* ========= RESPONSIVE ========= */
+    @media (max-width: 600px) {
+      .letter { padding: 32px 22px 38px; }
+      .letter-intro { flex-direction: column; align-items: center; text-align: center; }
+      .letter-photo img { width: 100px; height: 100px; }
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 36px 12px; }
+      nav { padding: 12px 16px; }
+    }
+
+    /* Nav overlay for drawer */
+    .nav-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 997;
+    }
+
+    .nav-overlay.active { display: block; }
+  </style>
+</head>
+<body>
+
+  <div class="wood-bg"></div>
+
+  <nav>
+    <button id="hamburger" class="hamburger" aria-label="Buka menu">&#9776;</button>
+    <span class="nav-brand">Excel Rechy Katuuk</span>
+    <div style="width:40px"></div><!-- spacer -->
+  </nav>
+
+  <div class="nav-overlay" id="navOverlay"></div>
+  <div id="drawer" class="drawer">
+    <a href="index.html" class="active">Home</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="blog.html">Blog</a>
+    <a href="contact.html">Contact</a>
+  </div>
+
+  <main class="scene">
+
+    <!-- ENVELOPE -->
+    <div class="envelope-wrapper" id="envelopeWrapper">
+      <div class="envelope-shadow"></div>
+
+      <div class="envelope" id="envelope">
+
+        <!-- Bottom V folds -->
+        <div class="envelope-bottom">
+          <div class="fold-left"></div>
+          <div class="fold-right"></div>
+        </div>
+
+        <!-- Flap -->
+        <div class="flap" id="flap">
+          <div class="flap-face"></div>
+          <div class="flap-back"></div>
+        </div>
+
+        <!-- Wax seal -->
+        <div class="wax-seal" id="waxSeal">X</div>
+      </div>
+
+      <p class="envelope-hint" id="envelopeHint">✦ &nbsp; klik untuk membuka &nbsp; ✦</p>
+    </div>
+
+    <!-- LETTER (revealed after opening) -->
+    <div class="letter-container" id="letterContainer">
+      <div class="letter">
+
+        <div class="letter-date">Minggu, 10 Mei 2026 &nbsp;·&nbsp; Minahasa Utara</div>
+
+        <div class="letter-greeting">Halo, selamat datang!</div>
+
+        <div class="letter-intro">
+          <div class="letter-photo">
+            <img src="foto.jpg" alt="Foto Excel Rechy Katuuk">
+          </div>
+          <div class="letter-body">
+            <p>Perkenalkan, nama saya <strong>Excel Rechy Katuuk</strong> — biasa dipanggil <em>Xel</em> atau Excel. Saya lahir pada 27 Mei 2006 di Jakarta.</p>
+            <p>Saat ini saya adalah mahasiswa <strong>Universitas Sam Ratulangi</strong>, Fakultas Teknik Elektro, Program Studi Informatika.</p>
+            <p>Saya memiliki ketertarikan besar di bidang <strong>teknologi</strong>, pengembangan perangkat lunak, dan game development. Di luar itu, saya juga menikmati fotografi dan menjelajahi tempat-tempat baru.</p>
+          </div>
+        </div>
+
+        <div class="ornament">— ✦ —</div>
+
+        <div class="letter-signature">
+          <span class="sign-label">Dengan hangat,</span>
+          <span class="sign-name">Excel Rechy Katuuk</span>
+        </div>
+
+        <!-- POLAROID SECTION -->
+        <div class="ornament" style="margin-top:40px;">· · · · · · · · · ·</div>
+
+        <p class="polaroid-section-title">✦ &nbsp; JEPRETAN SAYA &nbsp; ✦</p>
+        <p class="polaroid-note">"Beberapa momen yang berhasil saya abadikan..."</p>
+
+        <div class="gallery-grid">
+
+          <figure class="polaroid">
+            <img src="fotoairterjun.jpg" alt="Air Terjun Tunan">
+            <figcaption>Air Terjun Tunan</figcaption>
+          </figure>
+
+          <figure class="polaroid">
+            <img src="fotomalamhari.jpg" alt="Malam di Kebun">
+            <figcaption>Malam di Kebun</figcaption>
+          </figure>
+
+          <figure class="polaroid">
+            <img src="fotopemandangan.jpg" alt="Bunga Matahari">
+            <figcaption>Bunga Matahari</figcaption>
+          </figure>
+
+          <figure class="polaroid">
+            <img src="fotodalamrumah.jpg" alt="Ruang Tamu">
+            <figcaption>Ruang Tamu</figcaption>
+          </figure>
+
+          <figure class="polaroid">
+            <img src="fotosunrise.jpg" alt="Senja Berkemah">
+            <figcaption>Senja Berkemah</figcaption>
+          </figure>
+
+          <figure class="polaroid">
+            <img src="fotomalam.jpg" alt="Perapian Malam">
+            <figcaption>Perapian Malam</figcaption>
+          </figure>
+
+        </div>
+
+        <div class="ornament" style="margin-top:36px; font-size:0.7rem; letter-spacing:0.3em;">
+          klik foto untuk melihat lebih besar
+        </div>
+
+      </div>
+    </div>
+
+    <footer class="scene-footer">
+      &copy; 2026 &nbsp;·&nbsp; Excel Rechy Katuuk &nbsp;·&nbsp; Universitas Sam Ratulangi
+    </footer>
+
+  </main>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox">
+    <img src="" alt="" id="lightboxImg">
+    <button class="close-btn" id="closeBtn">&times;</button>
+  </div>
+
+  <script>
+    // ── Envelope open ──────────────────────────────────
+    const wrapper = document.getElementById('envelopeWrapper');
+    const letterContainer = document.getElementById('letterContainer');
+
+    wrapper.addEventListener('click', () => {
+      if (wrapper.classList.contains('opened')) return;
+      wrapper.classList.add('opened');
+      setTimeout(() => {
+        letterContainer.classList.add('visible');
+        letterContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 600);
+    });
+
+    // ── Hamburger / Drawer ────────────────────────────
+    const hamburger = document.getElementById('hamburger');
+    const drawer = document.getElementById('drawer');
+    const overlay = document.getElementById('navOverlay');
+
+    hamburger.addEventListener('click', () => {
+      const open = drawer.classList.toggle('open');
+      overlay.classList.toggle('active', open);
+    });
+
+    overlay.addEventListener('click', () => {
+      drawer.classList.remove('open');
+      overlay.classList.remove('active');
+    });
+
+    drawer.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        drawer.classList.remove('open');
+        overlay.classList.remove('active');
+      });
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        drawer.classList.remove('open');
+        overlay.classList.remove('active');
+        closeLightbox();
+      }
+    });
+
+    // ── Lightbox ──────────────────────────────────────
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    const closeBtn = document.getElementById('closeBtn');
+
+    document.querySelectorAll('figure.polaroid img').forEach(img => {
+      img.addEventListener('click', e => {
+        e.stopPropagation();
+        lightbox.classList.add('active');
+        lightboxImg.src = img.src;
+        lightboxImg.alt = img.alt;
+        document.body.style.overflow = 'hidden';
+      });
+    });
+
+    closeBtn.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+
+    function closeLightbox() {
+      lightbox.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    // ── Fade-in on scroll ─────────────────────────────
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = entry.target.dataset.baseTransform || 'none';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('figure.polaroid').forEach((fig, i) => {
+      const baseRot = i % 3 === 0 ? 'rotate(-2.5deg)' : i % 3 === 1 ? 'rotate(2deg)' : 'rotate(-1deg)';
+      fig.dataset.baseTransform = baseRot;
+      fig.style.opacity = '0';
+      fig.style.transition = `opacity 0.5s ease ${i * 0.08}s, transform 0.35s cubic-bezier(.2,.8,.3,1.2), box-shadow 0.3s`;
+      observer.observe(fig);
+    });
+  </script>
+
+</body>
+</html>

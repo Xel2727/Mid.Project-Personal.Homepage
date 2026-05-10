@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact — Excel Rechy Katuuk</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Special+Elite&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cream: #f5edd6; --paper: #efe3c2; --aged: #d4b896;
+      --sepia: #8b6340; --sepia-dark: #5c3d1e; --ink: #2c1a0e; --ink-faded: #6b4c30;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    body { font-family: 'Libre Baskerville', Georgia, serif; background-color: #3b1f0c; min-height: 100vh; overflow-x: hidden; }
+
+    .wood-bg { position:fixed; inset:0; z-index:0;
+      background:
+        repeating-linear-gradient(92deg, transparent 0px, transparent 3px, rgba(0,0,0,0.04) 3px, rgba(0,0,0,0.04) 4px),
+        repeating-linear-gradient(180deg, rgba(90,40,10,0.0) 0px, rgba(120,60,20,0.12) 18px, rgba(80,35,8,0.0) 36px, rgba(130,65,18,0.08) 54px, rgba(70,30,8,0.0) 72px),
+        linear-gradient(175deg, #6b3a1f 0%, #4a2510 25%, #7a4520 50%, #3b1f0c 75%, #5c3010 100%);
+    }
+    .wood-bg::after { content:''; position:fixed; inset:0;
+      background-image: radial-gradient(ellipse 120px 30px at 15% 20%, rgba(30,10,2,0.25) 0%, transparent 70%), radial-gradient(ellipse 80px 20px at 75% 60%, rgba(30,10,2,0.2) 0%, transparent 70%), radial-gradient(ellipse 100px 25px at 40% 80%, rgba(30,10,2,0.18) 0%, transparent 70%);
+      pointer-events:none;
+    }
+    .wood-bg::before { content:''; position:fixed; inset:0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+      pointer-events:none; z-index:1;
+    }
+
+    nav {
+      position:sticky; top:0; z-index:500;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 28px; background:rgba(30,10,4,0.88); backdrop-filter:blur(8px);
+      border-bottom:2px solid rgba(160,98,42,0.5); box-shadow:0 2px 20px rgba(0,0,0,0.5);
+    }
+    .hamburger {
+      background:transparent; border:1.5px solid rgba(160,98,42,0.6);
+      color:#d4b896; font-size:18px; width:40px; height:40px;
+      border-radius:3px; cursor:pointer;
+      display:inline-flex; align-items:center; justify-content:center; transition:background 0.2s;
+    }
+    .hamburger:hover { background:rgba(160,98,42,0.3); }
+    .nav-brand { font-family:'Dancing Script',cursive; font-size:1.3rem; color:#d4b896; letter-spacing:0.05em; }
+    .drawer {
+      display:flex; flex-direction:column; position:fixed;
+      top:0; left:0; height:100vh; width:260px;
+      background:rgba(25,10,3,0.97); border-right:2px solid rgba(160,98,42,0.4);
+      padding-top:70px; transform:translateX(-100%);
+      transition:transform 0.28s cubic-bezier(.4,0,.2,1); z-index:998;
+    }
+    .drawer::before {
+      content:'✦  Menu  ✦'; position:absolute; top:26px; left:50%;
+      transform:translateX(-50%); font-family:'Special Elite',serif;
+      color:var(--sepia); font-size:0.8rem; letter-spacing:0.2em; white-space:nowrap;
+    }
+    .drawer a {
+      padding:13px 24px; color:#d4b896; text-decoration:none;
+      font-family:'Special Elite',serif; font-size:0.95rem; letter-spacing:0.12em;
+      border-bottom:1px solid rgba(160,98,42,0.12); transition:color 0.2s,padding-left 0.2s; position:relative;
+    }
+    .drawer a::before { content:'›'; position:absolute; left:12px; opacity:0; transition:opacity 0.2s; color:var(--sepia); }
+    .drawer a:hover, .drawer a.active { color:var(--cream); padding-left:34px; }
+    .drawer a:hover::before, .drawer a.active::before { opacity:1; }
+    .drawer.open { transform:translateX(0); box-shadow:6px 0 30px rgba(0,0,0,0.6); }
+    .nav-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:997; }
+    .nav-overlay.active { display:block; }
+
+    .scene { position:relative; z-index:10; padding:48px 20px 80px; }
+
+    .paper-sheet {
+      max-width: 640px; margin: 0 auto;
+      background: var(--paper);
+      background-image:
+        repeating-linear-gradient(transparent 0px, transparent 27px, rgba(139,99,64,0.08) 27px, rgba(139,99,64,0.08) 28px),
+        radial-gradient(ellipse at 20% 5%, rgba(255,220,150,0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 95%, rgba(180,130,70,0.08) 0%, transparent 50%);
+      border: 1px solid var(--aged);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.25), inset 0 0 80px rgba(180,140,70,0.04);
+      padding: 52px 48px 60px; position: relative;
+    }
+    .paper-sheet::before { content:''; position:absolute; top:-1px; left:-1px; width:22px; height:22px; border-top:2.5px solid var(--sepia); border-left:2.5px solid var(--sepia); }
+    .paper-sheet::after  { content:''; position:absolute; bottom:-1px; right:-1px; width:22px; height:22px; border-bottom:2.5px solid var(--sepia); border-right:2.5px solid var(--sepia); }
+
+    .sheet-title {
+      font-family:'Playfair Display',serif; font-size:clamp(1.7rem,5vw,2.6rem);
+      font-weight:900; color:var(--sepia-dark); text-align:center; margin-bottom:6px;
+    }
+    .sheet-subtitle { text-align:center; font-family:'Special Elite',serif; font-size:0.75rem; color:var(--sepia); letter-spacing:0.25em; margin-bottom:36px; }
+
+    .ornament { text-align:center; color:var(--sepia); letter-spacing:0.4em; font-size:0.75rem; margin:28px 0; opacity:0.65; }
+
+    /* Info section */
+    .info-section { margin-bottom: 32px; }
+    .info-section h2 {
+      font-family:'Playfair Display',serif; font-size:1.2rem; color:var(--sepia-dark);
+      margin-bottom:16px; padding-bottom:8px; border-bottom:1.5px solid rgba(212,184,150,0.6);
+    }
+    .info-section p { font-size:0.9rem; color:var(--ink-faded); margin-bottom:8px; line-height:1.75; }
+    .info-section p strong { color:var(--sepia-dark); font-family:'Special Elite',serif; }
+
+    /* Form */
+    .form-section h2 {
+      font-family:'Playfair Display',serif; font-size:1.2rem; color:var(--sepia-dark);
+      margin-bottom:20px; padding-bottom:8px; border-bottom:1.5px solid rgba(212,184,150,0.6);
+    }
+    label {
+      display:block; font-family:'Special Elite',serif; font-size:0.8rem;
+      letter-spacing:0.1em; color:var(--sepia-dark); margin-bottom:5px;
+    }
+    input[type="text"], input[type="email"], textarea {
+      width:100%; padding:10px 13px; margin-bottom:18px;
+      background:#faf6ec; border:1.5px solid var(--aged); color:var(--ink);
+      font-family:'Libre Baskerville',serif; font-size:0.88rem;
+      transition:border-color 0.25s, box-shadow 0.25s;
+      box-shadow:inset 0 1px 3px rgba(139,99,64,0.07);
+    }
+    input[type="text"]:focus, input[type="email"]:focus, textarea:focus {
+      outline:none; border-color:var(--sepia); box-shadow:0 0 0 3px rgba(139,99,64,0.12);
+    }
+    textarea { resize:vertical; }
+    input[type="submit"] {
+      background:var(--sepia-dark); color:var(--cream); border:none;
+      padding:12px 36px; font-family:'Special Elite',serif; font-size:0.88rem;
+      letter-spacing:0.15em; cursor:pointer;
+      box-shadow:3px 4px 0 var(--sepia), 0 6px 16px rgba(92,61,30,0.2);
+      transition:transform 0.2s, box-shadow 0.2s;
+    }
+    input[type="submit"]:hover { transform:translateY(-2px) translateX(-1px); box-shadow:5px 6px 0 var(--sepia), 0 10px 24px rgba(92,61,30,0.26); }
+
+    footer { position:relative; z-index:10; text-align:center; padding:24px; font-family:'Special Elite',serif; font-size:0.72rem; color:rgba(160,98,42,0.45); letter-spacing:0.2em; }
+
+    @media (max-width:600px) {
+      .paper-sheet { padding:32px 20px 40px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wood-bg"></div>
+
+  <nav>
+    <button id="hamburger" class="hamburger">&#9776;</button>
+    <span class="nav-brand">Excel Rechy Katuuk</span>
+    <div style="width:40px"></div>
+  </nav>
+
+  <div class="nav-overlay" id="navOverlay"></div>
+  <div id="drawer" class="drawer">
+    <a href="index.html">Home</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="blog.html">Blog</a>
+    <a href="contact.html" class="active">Contact</a>
+  </div>
+
+  <main class="scene">
+    <div class="paper-sheet">
+
+      <h1 class="sheet-title">Hubungi Saya</h1>
+      <p class="sheet-subtitle">— ✦ — saya senang mendengar dari Anda — ✦ —</p>
+
+      <div class="info-section">
+        <h2>Informasi Kontak</h2>
+        <p><strong>Email :</strong> rjkatuuk@email.com</p>
+        <p><strong>Telepon :</strong> +62 835-9893-7495</p>
+        <p><strong>Alamat :</strong> Jl. Tatumpeh, Minahasa Utara, Indonesia</p>
+      </div>
+
+      <div class="ornament">✦ &nbsp; &nbsp; ✦ &nbsp; &nbsp; ✦</div>
+
+      <div class="form-section">
+        <h2>Formulir Kontak</h2>
+        <form id="contactForm">
+          <label for="name">Nama</label>
+          <input type="text" id="name" name="name" placeholder="Nama lengkap Anda" required>
+
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="email@contoh.com" required>
+
+          <label for="message">Pesan</label>
+          <textarea id="message" name="message" rows="6" placeholder="Tulis pesan Anda di sini..." required></textarea>
+
+          <input type="submit" value="KIRIM PESAN">
+        </form>
+      </div>
+
+      <div class="ornament">— ✦ —</div>
+
+    </div>
+  </main>
+
+  <footer>&copy; 2026 &nbsp;·&nbsp; Excel Rechy Katuuk &nbsp;·&nbsp; Universitas Sam Ratulangi</footer>
+
+  <script>
+    const hamburger = document.getElementById('hamburger');
+    const drawer = document.getElementById('drawer');
+    const overlay = document.getElementById('navOverlay');
+    hamburger.addEventListener('click', () => { const open = drawer.classList.toggle('open'); overlay.classList.toggle('active', open); });
+    overlay.addEventListener('click', () => { drawer.classList.remove('open'); overlay.classList.remove('active'); });
+    drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { drawer.classList.remove('open'); overlay.classList.remove('active'); }));
+    document.addEventListener('keydown', e => { if(e.key==='Escape'){drawer.classList.remove('open');overlay.classList.remove('active');} });
+
+    document.getElementById('contactForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const message = document.getElementById('message').value;
+      if (name && email && message) {
+        alert(`Terima kasih, ${name}! Pesan Anda telah dikirim. Saya akan balas melalui email ${email} segera.`);
+        this.reset();
+      }
+    });
+  </script>
+</body>
+</html>

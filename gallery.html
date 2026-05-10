@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gallery — Excel Rechy Katuuk</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Special+Elite&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cream: #f5edd6; --paper: #efe3c2; --aged: #d4b896;
+      --sepia: #8b6340; --sepia-dark: #5c3d1e; --ink: #2c1a0e;
+      --ink-faded: #6b4c30; --tape: rgba(210,195,155,0.65);
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'Libre Baskerville', Georgia, serif;
+      background-color: #3b1f0c;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Wood background */
+    .wood-bg {
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        repeating-linear-gradient(92deg, transparent 0px, transparent 3px, rgba(0,0,0,0.04) 3px, rgba(0,0,0,0.04) 4px),
+        repeating-linear-gradient(180deg, rgba(90,40,10,0.0) 0px, rgba(120,60,20,0.12) 18px, rgba(80,35,8,0.0) 36px, rgba(130,65,18,0.08) 54px, rgba(70,30,8,0.0) 72px),
+        linear-gradient(175deg, #6b3a1f 0%, #4a2510 25%, #7a4520 50%, #3b1f0c 75%, #5c3010 100%);
+    }
+    .wood-bg::after {
+      content: ''; position: fixed; inset: 0;
+      background-image:
+        radial-gradient(ellipse 120px 30px at 15% 20%, rgba(30,10,2,0.25) 0%, transparent 70%),
+        radial-gradient(ellipse 80px 20px at 75% 60%, rgba(30,10,2,0.2) 0%, transparent 70%),
+        radial-gradient(ellipse 100px 25px at 40% 80%, rgba(30,10,2,0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .wood-bg::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 1;
+    }
+
+    /* Nav */
+    nav {
+      position: sticky; top: 0; z-index: 500;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 28px;
+      background: rgba(30,10,4,0.88);
+      backdrop-filter: blur(8px);
+      border-bottom: 2px solid rgba(160,98,42,0.5);
+      box-shadow: 0 2px 20px rgba(0,0,0,0.5);
+    }
+    .hamburger {
+      background: transparent; border: 1.5px solid rgba(160,98,42,0.6);
+      color: #d4b896; font-size: 18px; width: 40px; height: 40px;
+      border-radius: 3px; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .hamburger:hover { background: rgba(160,98,42,0.3); }
+    .nav-brand {
+      font-family: 'Dancing Script', cursive; font-size: 1.3rem;
+      color: #d4b896; letter-spacing: 0.05em;
+    }
+    .drawer {
+      display: flex; flex-direction: column; position: fixed;
+      top: 0; left: 0; height: 100vh; width: 260px;
+      background: rgba(25,10,3,0.97);
+      border-right: 2px solid rgba(160,98,42,0.4);
+      padding-top: 70px;
+      transform: translateX(-100%);
+      transition: transform 0.28s cubic-bezier(.4,0,.2,1);
+      z-index: 998;
+    }
+    .drawer::before {
+      content: '✦  Menu  ✦'; position: absolute; top: 26px; left: 50%;
+      transform: translateX(-50%); font-family: 'Special Elite', serif;
+      color: var(--sepia); font-size: 0.8rem; letter-spacing: 0.2em; white-space: nowrap;
+    }
+    .drawer a {
+      padding: 13px 24px; color: #d4b896; text-decoration: none;
+      font-family: 'Special Elite', serif; font-size: 0.95rem;
+      letter-spacing: 0.12em; border-bottom: 1px solid rgba(160,98,42,0.12);
+      transition: color 0.2s, padding-left 0.2s; position: relative;
+    }
+    .drawer a::before {
+      content: '›'; position: absolute; left: 12px; opacity: 0;
+      transition: opacity 0.2s; color: var(--sepia);
+    }
+    .drawer a:hover, .drawer a.active { color: var(--cream); padding-left: 34px; }
+    .drawer a:hover::before, .drawer a.active::before { opacity: 1; }
+    .drawer.open { transform: translateX(0); box-shadow: 6px 0 30px rgba(0,0,0,0.6); }
+    .nav-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 997; }
+    .nav-overlay.active { display: block; }
+
+    /* Page header */
+    header {
+      position: relative; z-index: 10;
+      text-align: center; padding: 44px 24px 20px;
+    }
+    header::before {
+      content: '— ✦ —'; display: block;
+      font-family: 'Special Elite', serif; color: rgba(160,98,42,0.7);
+      font-size: 0.85rem; letter-spacing: 0.3em; margin-bottom: 12px;
+    }
+    header::after {
+      content: '— ✦ —'; display: block;
+      font-family: 'Special Elite', serif; color: rgba(160,98,42,0.7);
+      font-size: 0.85rem; letter-spacing: 0.3em; margin-top: 12px;
+    }
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.9rem, 6vw, 3rem); font-weight: 900;
+      color: var(--cream);
+      text-shadow: 2px 3px 0 rgba(0,0,0,0.3), 0 0 30px rgba(160,98,42,0.3);
+      letter-spacing: 0.03em;
+    }
+
+    /* Main */
+    main {
+      position: relative; z-index: 10;
+      max-width: 960px; margin: 0 auto;
+      padding: 20px 32px 80px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-family: 'Special Elite', serif;
+      color: rgba(180,140,80,0.65);
+      letter-spacing: 0.12em;
+      font-size: 0.82rem;
+      margin-bottom: 48px;
+    }
+
+    /* Gallery grid — polaroids directly on wood */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 64px 28px;
+      padding: 20px 0 30px;
+      justify-items: center;
+    }
+
+    figure.polaroid {
+      background: #f7f2e6;
+      border: 1px solid rgba(139,99,64,0.15);
+      padding: 12px 12px 50px;
+      width: 100%; max-width: 280px;
+      box-shadow:
+        0 6px 18px rgba(0,0,0,0.45),
+        0 14px 36px rgba(0,0,0,0.3),
+        inset 0 0 0 1px rgba(255,255,255,0.5);
+      position: relative; cursor: pointer;
+      transition: transform 0.35s cubic-bezier(.2,.8,.3,1.2), box-shadow 0.3s;
+    }
+    figure.polaroid:nth-child(odd)  { transform: rotate(-2.5deg); }
+    figure.polaroid:nth-child(even) { transform: rotate(2deg); }
+    figure.polaroid:nth-child(3n)   { transform: rotate(-1deg); }
+    figure.polaroid:hover {
+      transform: translateY(-14px) rotate(0deg) scale(1.06) !important;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.55), 0 0 0 2px var(--sepia), inset 0 0 0 1px rgba(255,255,255,0.7);
+      z-index: 10;
+    }
+    figure.polaroid::before {
+      content: ''; position: absolute; top: -13px; left: 50%;
+      transform: translateX(-50%) rotate(-1.5deg);
+      width: 62px; height: 22px;
+      background: var(--tape); border: 1px solid rgba(180,160,100,0.25);
+    }
+    figure.polaroid img {
+      width: 100%; height: 220px; object-fit: cover; display: block;
+      filter: sepia(22%) contrast(1.05) brightness(0.97);
+      transition: filter 0.4s; background: var(--aged);
+    }
+    figure.polaroid:hover img { filter: sepia(0%) contrast(1.05) brightness(1); }
+    figcaption {
+      position: absolute; bottom: 10px; left: 0; right: 0;
+      text-align: center; font-family: 'Special Elite', serif;
+      font-size: 0.75rem; color: var(--ink-faded); letter-spacing: 0.05em; padding: 0 10px;
+    }
+
+    .divider {
+      text-align: center; font-family: 'Special Elite', serif;
+      color: rgba(160,98,42,0.6); letter-spacing: 0.4em;
+      font-size: 0.75rem; margin: 40px 0 16px;
+    }
+    .hint {
+      text-align: center; font-family: 'Special Elite', serif;
+      color: rgba(160,98,42,0.5); font-size: 0.72rem; letter-spacing: 0.15em;
+    }
+
+    /* Footer */
+    footer {
+      position: relative; z-index: 10;
+      text-align: center; padding: 24px;
+      font-family: 'Special Elite', serif; font-size: 0.72rem;
+      color: rgba(160,98,42,0.5); letter-spacing: 0.2em;
+      border-top: 1px solid rgba(160,98,42,0.2);
+    }
+
+    /* Lightbox */
+    .lightbox {
+      display: none; position: fixed; z-index: 1000; inset: 0;
+      background: rgba(20,8,2,0.95); backdrop-filter: blur(6px);
+    }
+    .lightbox.active { display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease; }
+    .lightbox img {
+      max-width: min(86vw, 600px); max-height: 80vh; object-fit: contain;
+      border: 10px solid #f7f2e6; border-bottom-width: 54px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.7); filter: sepia(10%) contrast(1.04);
+    }
+    .close-btn {
+      position: fixed; top: 20px; right: 24px;
+      background: var(--sepia-dark); border: 1.5px solid var(--sepia);
+      color: var(--cream); font-size: 1.3rem; width: 40px; height: 40px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .close-btn:hover { background: var(--sepia); }
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+
+    @media (max-width: 600px) {
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 44px 12px; }
+      main { padding: 16px 16px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wood-bg"></div>
+
+  <nav>
+    <button id="hamburger" class="hamburger">&#9776;</button>
+    <span class="nav-brand">Excel Rechy Katuuk</span>
+    <div style="width:40px"></div>
+  </nav>
+
+  <div class="nav-overlay" id="navOverlay"></div>
+  <div id="drawer" class="drawer">
+    <a href="index.html">Home</a>
+    <a href="gallery.html" class="active">Gallery</a>
+    <a href="blog.html">Blog</a>
+    <a href="contact.html">Contact</a>
+  </div>
+
+  <header>
+    <h1>Gallery Foto</h1>
+  </header>
+
+  <main>
+    <p class="subtitle">Kumpulan momen berharga dari perjalanan &amp; keseharian saya.</p>
+
+    <div class="gallery-grid">
+      <figure class="polaroid">
+        <img src="fotoairterjun.jpg" alt="Air terjun Tunan" loading="lazy">
+        <figcaption>Air Terjun Tunan</figcaption>
+      </figure>
+      <figure class="polaroid">
+        <img src="fotomalamhari.jpg" alt="Malam di kebun" loading="lazy">
+        <figcaption>Malam di Kebun</figcaption>
+      </figure>
+      <figure class="polaroid">
+        <img src="fotopemandangan.jpg" alt="Bunga matahari di bukit" loading="lazy">
+        <figcaption>Bunga Matahari di Bukit</figcaption>
+      </figure>
+      <figure class="polaroid">
+        <img src="fotodalamrumah.jpg" alt="Ruang tamu" loading="lazy">
+        <figcaption>Ruang Tamu</figcaption>
+      </figure>
+      <figure class="polaroid">
+        <img src="fotosunrise.jpg" alt="Senja berkemah" loading="lazy">
+        <figcaption>Senja Berkemah</figcaption>
+      </figure>
+      <figure class="polaroid">
+        <img src="fotomalam.jpg" alt="Perapian malam" loading="lazy">
+        <figcaption>Perapian Malam</figcaption>
+      </figure>
+    </div>
+
+    <div class="divider">✦ &nbsp; &nbsp; ✦ &nbsp; &nbsp; ✦</div>
+    <p class="hint">klik foto untuk melihat lebih besar</p>
+  </main>
+
+  <footer>&copy; 2026 &nbsp;·&nbsp; Excel Rechy Katuuk &nbsp;·&nbsp; Universitas Sam Ratulangi</footer>
+
+  <div class="lightbox" id="lightbox">
+    <img src="" alt="" id="lightboxImg">
+    <button class="close-btn" id="closeBtn">&times;</button>
+  </div>
+
+  <script>
+    const hamburger = document.getElementById('hamburger');
+    const drawer = document.getElementById('drawer');
+    const overlay = document.getElementById('navOverlay');
+    hamburger.addEventListener('click', () => {
+      const open = drawer.classList.toggle('open');
+      overlay.classList.toggle('active', open);
+    });
+    overlay.addEventListener('click', () => { drawer.classList.remove('open'); overlay.classList.remove('active'); });
+    drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { drawer.classList.remove('open'); overlay.classList.remove('active'); }));
+
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    document.getElementById('closeBtn').addEventListener('click', () => { lightbox.classList.remove('active'); document.body.style.overflow=''; });
+    lightbox.addEventListener('click', e => { if(e.target===lightbox){lightbox.classList.remove('active');document.body.style.overflow='';} });
+    document.querySelectorAll('figure.polaroid img').forEach(img => {
+      img.addEventListener('click', () => { lightbox.classList.add('active'); lightboxImg.src=img.src; lightboxImg.alt=img.alt; document.body.style.overflow='hidden'; });
+    });
+    document.addEventListener('keydown', e => { if(e.key==='Escape'){lightbox.classList.remove('active');document.body.style.overflow='';drawer.classList.remove('open');overlay.classList.remove('active');} });
+  </script>
+</body>
+</html>
